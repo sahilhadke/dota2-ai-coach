@@ -5,29 +5,29 @@ A real-time AI coaching assistant for Dota 2 that reads live game data via Game 
 ## Features
 
 ### Real-Time Game State Tracking
-- Receives live game data from Dota 2 via GSI (hero stats, items, minimap, buildings, draft, etc.)
-- State diffing engine detects meaningful changes between game ticks
-- Web dashboard displays live hero HP/mana, KDA, gold, GPM/XPM, and match clock
+- [x] Receives live game data from Dota 2 via GSI (hero stats, items, minimap, buildings, draft, etc.)
+- [x] State diffing engine detects meaningful changes between game ticks
+- [x] Web dashboard displays live hero HP/mana, KDA, gold, GPM/XPM, and match clock
 
 ### Smart Notifications
-- **Economy thresholds** — alerts when gold crosses milestones (every 1000g)
-- **Combat alerts** — warns when HP drops below 20% and you have unused active items
-- **Gank detection** — tracks enemy hero positions on the minimap and alerts when enemies are closing in on your location, including TP/smoke ganks
-- **Game timings** — heads-up notifications for rune spawns, neutral creeps, siege waves, day/night cycles, Roshan, Tormentor, neutral item tiers, and more
+- [x] **Economy thresholds** — alerts when gold crosses milestones (every 1000g)
+- [x] **Combat alerts** — warns when HP drops below 20% and you have unused active items
+- [x] **Gank detection** — tracks enemy hero positions on the minimap and alerts when enemies are closing in on your location, including TP/smoke ganks
+- [x] **Game timings** — heads-up notifications for rune spawns, neutral creeps, siege waves, day/night cycles, Roshan, Tormentor, neutral item tiers, and more
 
 ### AI Item Recommendations (Gemini)
-- **Auto recommendations** — triggered when gold crosses thresholds, suggests 1-3 items to buy next
-- **Full item build** — on-demand button to get a prioritized 5-item build covering early/mid/late game
-- Considers your hero, role, current items, enemy lineup, lane matchup, and game time
-- Runs in a background thread so it never blocks game state processing
+- [x] **Auto recommendations** — triggered when gold crosses thresholds, suggests 1-3 items to buy next
+- [x] **Full item build** — on-demand button to get a prioritized 5-item build covering early/mid/late game
+- [x] Considers your hero, role, current items, enemy lineup, lane matchup, and game time
+- [x] Runs in a background thread so it never blocks game state processing
 
 ### Lane Setup
-- After the first minute of the game, a popup asks for your lane, position, ally, and lane enemies
-- This context is fed into the LLM prompts for more accurate recommendations
+- [x] After the first minute of the game, a popup asks for your lane, position, ally, and lane enemies
+- [x] This context is fed into the LLM prompts for more accurate recommendations
 
 ### Server Logs Panel
-- Live server-side logs visible on the dashboard
-- Shows LLM API call status (requesting → received → parsed), errors, and system events
+- [x] Live server-side logs visible on the dashboard
+- [x] Shows LLM API call status (requesting → received → parsed), errors, and system events
 
 ## Architecture
 
@@ -60,8 +60,8 @@ Dota 2 Client ──GSI POST──▸ GSI Server (:4000)
 ### 1. Clone and install dependencies
 
 ```bash
-git clone <repo-url> dota2-coach
-cd dota2-coach
+git clone https://github.com/sahilhadke/dota2-ai-coach.git
+cd dota2-ai-coach
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -89,7 +89,17 @@ Copy `gamestate_integration_dota2gsi.cfg` into your Dota 2 game config directory
 
 Create the `gamestate_integration` folder if it doesn't exist. Restart Dota 2 after copying.
 
-### 4. Run
+### 4. Add Dota 2 launch options
+
+In Steam, right-click **Dota 2** → **Properties** → **General** → **Launch Options** and add:
+
+```
+-gamestateintegration
+```
+
+This enables the Game State Integration API so Dota 2 sends live data to the coach.
+
+### 5. Run
 
 ```bash
 ./run.sh
@@ -102,7 +112,7 @@ source venv/bin/activate
 PYTHONPATH=src python -m dota2_coach.main
 ```
 
-Open **http://127.0.0.1:5050/** in your browser.
+Open **http://127.0.0.1:5050/** in your browser, then start a Dota 2 match.
 
 ### Stopping / freeing ports
 
@@ -113,7 +123,7 @@ Open **http://127.0.0.1:5050/** in your browser.
 ## Project Structure
 
 ```
-dota2-coach/
+dota2-ai-coach/
 ├── src/dota2_coach/
 │   ├── main.py                    # Entry point
 │   ├── gsi/

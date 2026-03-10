@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dota 2 Coach</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0e0e12;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: #16161c;
+      border-bottom: 1px solid #2a2a35;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #c5a44e;
+      letter-spacing: 0.5px;
+    }
+
+    #connection-status {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      background: #2a1a1a;
+      color: #e74c3c;
+    }
+
+    #connection-status.connected {
+      background: #1a2a1a;
+      color: #2ecc71;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 260px;
+      gap: 0;
+      height: calc(100vh - 57px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: #13131a;
+      border-right: 1px solid #2a2a35;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .stat-group {
+      margin-bottom: 20px;
+    }
+
+    .stat-group h3 {
+      font-size: 13px;
+      color: #c5a44e;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #222;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      font-size: 13px;
+    }
+
+    .stat-row .label { color: #888; }
+    .stat-row .value { color: #ddd; font-weight: 500; }
+
+    /* ── Item Recommendations ── */
+    .rec-panel {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid #2a2a35;
+    }
+
+    .rec-panel h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .rec-strategy {
+      font-size: 12px;
+      color: #c5a44e;
+      padding: 8px 10px;
+      background: #1a1a10;
+      border-radius: 4px;
+      border-left: 2px solid #c5a44e;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .rec-item {
+      padding: 10px 12px;
+      background: #1a1a22;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      border-left: 3px solid #c5a44e;
+    }
+
+    .rec-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .rec-item-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .rec-item-cost {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f1c40f;
+    }
+
+    .rec-item-reason {
+      font-size: 12px;
+      color: #999;
+      line-height: 1.4;
+    }
+
+    .rec-meta {
+      font-size: 10px;
+      color: #444;
+      margin-top: 8px;
+      text-align: right;
+    }
+
+    .rec-empty {
+      font-size: 12px;
+      color: #444;
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    /* ── Full Build Panel ── */
+    .build-panel {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid #2a2a35;
+    }
+
+    .build-panel h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    #build-btn {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid #c5a44e;
+      border-radius: 6px;
+      background: transparent;
+      color: #c5a44e;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 12px;
+    }
+
+    #build-btn:hover {
+      background: #c5a44e;
+      color: #0e0e12;
+    }
+
+    #build-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .build-item {
+      padding: 10px 12px;
+      background: #1a1a22;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      border-left: 3px solid #3498db;
+    }
+
+    .build-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .build-item-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .build-item-cost {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f1c40f;
+    }
+
+    .build-item-phase {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-bottom: 4px;
+    }
+
+    .build-item-phase.early  { background: #0d3d1f; color: #2ecc71; }
+    .build-item-phase.mid    { background: #3d2e0d; color: #f39c12; }
+    .build-item-phase.late   { background: #2a153d; color: #af7ac5; }
+
+    .build-item-reason {
+      font-size: 12px;
+      color: #999;
+      line-height: 1.4;
+    }
+
+    /* ── Main: notifications ── */
+    .main {
+      padding: 20px 24px;
+      overflow-y: auto;
+    }
+
+    .main h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+
+    #notifications {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .notif {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 3px solid #555;
+      background: #1a1a22;
+      animation: slideIn 0.25s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .notif.fade-out {
+      animation: fadeOut 0.4s ease-out forwards;
+    }
+
+    .notif .badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .notif .msg {
+      font-size: 14px;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .notif .time {
+      font-size: 11px;
+      color: #555;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .notif .progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: rgba(255,255,255,0.15);
+      animation: shrink 20s linear forwards;
+    }
+
+    /* Type colors */
+    .notif.economy_threshold { border-color: #f1c40f; }
+    .notif.economy_threshold .badge { background: #3d3200; color: #f1c40f; }
+
+    .notif.combat_alert { border-color: #e74c3c; }
+    .notif.combat_alert .badge { background: #3d1515; color: #e74c3c; }
+
+    .notif.hero_missing { border-color: #e67e22; }
+    .notif.hero_missing .badge { background: #3d2a10; color: #e67e22; }
+
+    .notif.gank_warning { border-color: #e74c3c; }
+    .notif.gank_warning .badge { background: #3d1515; color: #e74c3c; }
+
+    .notif.enemy_nearby { border-color: #c0392b; }
+    .notif.enemy_nearby .badge { background: #4d1010; color: #ff6b6b; }
+
+    .notif.bounty_rune { border-color: #f39c12; }
+    .notif.bounty_rune .badge { background: #3d2e0d; color: #f39c12; }
+
+    .notif.water_rune { border-color: #3498db; }
+    .notif.water_rune .badge { background: #0d2a3d; color: #3498db; }
+
+    .notif.power_rune { border-color: #9b59b6; }
+    .notif.power_rune .badge { background: #2a153d; color: #9b59b6; }
+
+    .notif.wisdom_rune { border-color: #1abc9c; }
+    .notif.wisdom_rune .badge { background: #0d3d33; color: #1abc9c; }
+
+    .notif.lotus_pool { border-color: #2ecc71; }
+    .notif.lotus_pool .badge { background: #0d3d1f; color: #2ecc71; }
+
+    .notif.tormentor { border-color: #e74c3c; }
+    .notif.tormentor .badge { background: #3d1515; color: #e74c3c; }
+
+    .notif.day_night { border-color: #7f8c8d; }
+    .notif.day_night .badge { background: #2a2d2e; color: #bdc3c7; }
+
+    .notif.siege_creep { border-color: #d35400; }
+    .notif.siege_creep .badge { background: #3d1f00; color: #e67e22; }
+
+    .notif.neutral_creep { border-color: #27ae60; }
+    .notif.neutral_creep .badge { background: #0d3d1f; color: #27ae60; }
+
+    .notif.neutral_item_tier { border-color: #8e44ad; }
+    .notif.neutral_item_tier .badge { background: #2a0d3d; color: #af7ac5; }
+
+    .notif.courier_upgrade { border-color: #2980b9; }
+    .notif.courier_upgrade .badge { background: #0d2a3d; color: #5dade2; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; max-height: 100px; margin-bottom: 0; }
+      to   { opacity: 0; max-height: 0; padding: 0 16px; margin-bottom: -8px; }
+    }
+
+    @keyframes shrink {
+      from { width: 100%; }
+      to   { width: 0%; }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #444;
+      font-size: 14px;
+    }
+
+    /* ── Server Logs Panel ── */
+    .log-panel {
+      background: #111118;
+      border-left: 1px solid #2a2a35;
+      padding: 16px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    .log-panel h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #666;
+      margin-bottom: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .log-entry {
+      font-size: 11px;
+      line-height: 1.5;
+      padding: 3px 0;
+      border-bottom: 1px solid #1a1a22;
+      display: flex;
+      gap: 6px;
+      animation: slideIn 0.2s ease-out;
+    }
+
+    .log-time {
+      color: #444;
+      flex-shrink: 0;
+    }
+
+    .log-src {
+      color: #5dade2;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .log-msg {
+      color: #999;
+      word-break: break-word;
+    }
+
+    .log-entry.info .log-msg  { color: #999; }
+    .log-entry.warn .log-msg  { color: #f39c12; }
+    .log-entry.error .log-msg { color: #e74c3c; }
+
+    .log-empty {
+      font-size: 12px;
+      color: #333;
+      text-align: center;
+      padding: 24px 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* ── Lane Setup Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a24;
+      border: 1px solid #2a2a35;
+      border-radius: 10px;
+      padding: 32px 36px;
+      width: 420px;
+      max-width: 90vw;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #c5a44e;
+      margin-bottom: 4px;
+    }
+
+    .modal .modal-sub {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .modal label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    .modal label:first-of-type {
+      margin-top: 0;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .radio-group input[type="radio"] {
+      display: none;
+    }
+
+    .radio-group span {
+      padding: 6px 14px;
+      font-size: 13px;
+      border-radius: 5px;
+      background: #13131a;
+      border: 1px solid #2a2a35;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .radio-group input[type="radio"]:checked + span {
+      background: #2a2510;
+      border-color: #c5a44e;
+      color: #c5a44e;
+    }
+
+    .modal input[type="text"] {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 5px;
+      border: 1px solid #2a2a35;
+      background: #13131a;
+      color: #e0e0e0;
+      outline: none;
+    }
+
+    .modal input[type="text"]:focus {
+      border-color: #c5a44e;
+    }
+
+    .enemy-inputs {
+      display: flex;
+      gap: 10px;
+    }
+
+    .enemy-inputs input {
+      flex: 1;
+    }
+
+    .modal button[type="submit"] {
+      margin-top: 24px;
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      background: #c5a44e;
+      color: #0e0e12;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .modal button[type="submit"]:hover {
+      background: #d4b65e;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>DOTA 2 COACH</h1>
+    <span id="connection-status">Disconnected</span>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Game State</h2>
+      <div id="game-state">
+        <div class="empty-state">Waiting for game data...</div>
+      </div>
+
+      <div class="rec-panel">
+        <h2>Item Recommendations</h2>
+        <div id="recommendations">
+          <div class="rec-empty">Recommendations appear when gold thresholds are crossed</div>
+        </div>
+      </div>
+
+      <div class="build-panel">
+        <h2>Full Item Build</h2>
+        <button id="build-btn">Get Item Build</button>
+        <div id="full-build"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <h2>Notifications</h2>
+      <div id="notifications">
+        <div class="empty-state" id="empty-msg">Notifications will appear here</div>
+      </div>
+    </main>
+
+    <aside class="log-panel">
+      <h2>Server Logs</h2>
+      <div id="server-logs">
+        <div class="log-empty">Waiting for server logs...</div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="modal-overlay" id="lane-modal">
+    <div class="modal">
+      <h2>Lane Setup</h2>
+      <p class="modal-sub">Help your coach give better recommendations</p>
+      <form id="lane-form">
+        <label>Lane</label>
+        <div class="radio-group">
+          <label><input type="radio" name="lane" value="top"><span>Top</span></label>
+          <label><input type="radio" name="lane" value="mid"><span>Mid</span></label>
+          <label><input type="radio" name="lane" value="bot" checked><span>Bot</span></label>
+        </div>
+
+        <label>Position</label>
+        <div class="radio-group">
+          <label><input type="radio" name="position" value="Pos 1 (Carry)" checked><span>Pos 1 — Carry</span></label>
+          <label><input type="radio" name="position" value="Pos 2 (Mid)"><span>Pos 2 — Mid</span></label>
+          <label><input type="radio" name="position" value="Pos 3 (Offlane)"><span>Pos 3 — Offlane</span></label>
+          <label><input type="radio" name="position" value="Pos 4 (Soft Support)"><span>Pos 4 — Soft Supp</span></label>
+          <label><input type="radio" name="position" value="Pos 5 (Hard Support)"><span>Pos 5 — Hard Supp</span></label>
+        </div>
+
+        <label>Lane Ally</label>
+        <input type="text" name="lane_ally" placeholder="e.g. Crystal Maiden">
+
+        <label>Lane Enemies</label>
+        <div class="enemy-inputs">
+          <input type="text" name="lane_enemy_1" placeholder="Enemy hero 1">
+          <input type="text" name="lane_enemy_2" placeholder="Enemy hero 2">
+        </div>
+
+        <button type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+    const POLL_MS = 500;
+    const NOTIF_TTL = 20000;
+
+    let lastEventTimestamp = 0;
+    let seenEvents = new Set();
+    let lastRecTimestamp = 0;
+    let modalShown = false;
+
+    const statusEl  = document.getElementById('connection-status');
+    const stateEl   = document.getElementById('game-state');
+    const notifEl   = document.getElementById('notifications');
+    const emptyEl   = document.getElementById('empty-msg');
+    const recEl     = document.getElementById('recommendations');
+    const buildBtn  = document.getElementById('build-btn');
+    const buildEl   = document.getElementById('full-build');
+    const modalEl   = document.getElementById('lane-modal');
+    const laneForm  = document.getElementById('lane-form');
+    const logsEl    = document.getElementById('server-logs');
+
+    let lastLogTs = 0;
+
+    let lastFullBuildTs = 0;
+    let fullBuildPending = false;
+
+    buildBtn.addEventListener('click', async () => {
+      buildBtn.disabled = true;
+      buildBtn.textContent = 'Requesting...';
+      fullBuildPending = true;
+      try {
+        await fetch(`${API}/full-recommendation`, { method: 'POST' });
+      } catch (_) {}
+      pollFullBuild();
+    });
+
+    laneForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(laneForm);
+      const enemies = [fd.get('lane_enemy_1'), fd.get('lane_enemy_2')].filter(Boolean);
+      const body = {
+        lane: fd.get('lane'),
+        position: fd.get('position'),
+        lane_ally: fd.get('lane_ally') || '',
+        lane_enemies: enemies,
+      };
+      try {
+        await fetch(`${API}/player-context`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+      } catch (_) {}
+      modalEl.classList.remove('visible');
+    });
+
+    function formatType(type) {
+      return type.replace(/_/g, ' ');
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts * 1000);
+      return d.toLocaleTimeString();
+    }
+
+    function eventKey(ev) {
+      return `${ev.type}:${ev.timestamp}:${ev.message}`;
+    }
+
+    function addNotification(ev) {
+      const key = eventKey(ev);
+      if (seenEvents.has(key)) return;
+      seenEvents.add(key);
+
+      if (emptyEl) emptyEl.remove();
+
+      const el = document.createElement('div');
+      el.className = `notif ${ev.type}`;
+      el.innerHTML = `
+        <span class="badge">${formatType(ev.type)}</span>
+        <span class="msg">${ev.message}</span>
+        <span class="time">${formatTime(ev.timestamp)}</span>
+        <div class="progress"></div>
+      `;
+
+      notifEl.prepend(el);
+
+      setTimeout(() => {
+        el.classList.add('fade-out');
+        el.addEventListener('animationend', () => el.remove());
+      }, NOTIF_TTL);
+    }
+
+    function renderState(state) {
+      if (!state || !state.map) {
+        stateEl.innerHTML = '<div class="empty-state">Waiting for game data...</div>';
+        return;
+      }
+
+      const m = state.map || {};
+      const p = state.player || {};
+      const h = state.hero || {};
+      const clock = m.clock_time || 0;
+      const mins = Math.floor(clock / 60);
+      const secs = Math.abs(clock % 60);
+
+      let html = '';
+
+      html += `<div class="stat-group"><h3>Match</h3>`;
+      html += statRow('Clock', `${mins}:${secs.toString().padStart(2, '0')}`);
+      html += statRow('Score', `${m.radiant_score || 0} - ${m.dire_score || 0}`);
+      html += statRow('Day/Night', m.daytime ? 'Day' : 'Night');
+      html += `</div>`;
+
+      if (p.name) {
+        html += `<div class="stat-group"><h3>${p.name}</h3>`;
+        html += statRow('Team', p.team_name || '—');
+        html += statRow('KDA', `${p.kills || 0}/${p.deaths || 0}/${p.assists || 0}`);
+        html += statRow('Last Hits', `${p.last_hits || 0} / ${p.denies || 0}`);
+        html += statRow('Gold', p.gold || 0);
+        html += statRow('GPM / XPM', `${p.gold_per_minute || 0} / ${p.experience_per_minute || 0}`);
+        html += `</div>`;
+      }
+
+      if (h.name) {
+        const heroName = (h.name || '').replace('npc_dota_hero_', '');
+        html += `<div class="stat-group"><h3>${heroName}</h3>`;
+        html += statRow('Level', h.level || 1);
+        html += statRow('HP', `${h.health || 0} / ${h.max_health || 0} (${h.health_percent || 0}%)`);
+        html += statRow('Mana', `${h.mana || 0} / ${h.max_mana || 0} (${h.mana_percent || 0}%)`);
+        html += statRow('Alive', h.alive ? 'Yes' : `No (${h.respawn_seconds || 0}s)`);
+        html += `</div>`;
+      }
+
+      stateEl.innerHTML = html;
+    }
+
+    function renderRecommendation(rec) {
+      if (!rec || !rec.items || rec.items.length === 0) return;
+      if (rec.timestamp === lastRecTimestamp) return;
+      lastRecTimestamp = rec.timestamp;
+
+      let html = '';
+
+      if (rec.strategy) {
+        html += `<div class="rec-strategy">${rec.strategy}</div>`;
+      }
+
+      for (const item of rec.items) {
+        html += `<div class="rec-item">`;
+        html += `<div class="rec-item-header">`;
+        html += `<span class="rec-item-name">${item.name}</span>`;
+        html += `<span class="rec-item-cost">${item.cost}g</span>`;
+        html += `</div>`;
+        html += `<div class="rec-item-reason">${item.reason}</div>`;
+        html += `</div>`;
+      }
+
+      html += `<div class="rec-meta">${rec.hero} @ ${rec.gold_at_request}g — ${formatTime(rec.timestamp)}</div>`;
+
+      recEl.innerHTML = html;
+    }
+
+    function statRow(label, value) {
+      return `<div class="stat-row"><span class="label">${label}</span><span class="value">${value}</span></div>`;
+    }
+
+    async function pollEvents() {
+      try {
+        const res = await fetch(`${API}/events`);
+        const events = await res.json();
+
+        for (const ev of events) {
+          if (ev.timestamp > lastEventTimestamp) {
+            addNotification(ev);
+          }
+        }
+
+        if (events.length > 0) {
+          const maxTs = Math.max(...events.map(e => e.timestamp));
+          if (maxTs > lastEventTimestamp) lastEventTimestamp = maxTs;
+        }
+      } catch (_) {}
+    }
+
+    async function pollState() {
+      try {
+        const res = await fetch(`${API}/state`);
+        const state = await res.json();
+        renderState(state);
+
+        if (state && state.map) {
+          statusEl.textContent = 'Connected';
+          statusEl.className = 'connected';
+
+          if (!modalShown && (state.map.clock_time || 0) >= 60) {
+            modalShown = true;
+            modalEl.classList.add('visible');
+          }
+        } else {
+          statusEl.textContent = 'Waiting';
+          statusEl.className = '';
+        }
+      } catch (_) {
+        statusEl.textContent = 'Disconnected';
+        statusEl.className = '';
+      }
+    }
+
+    async function pollRecommendation() {
+      try {
+        const res = await fetch(`${API}/recommendation`);
+        if (res.ok) {
+          const rec = await res.json();
+          renderRecommendation(rec);
+        }
+      } catch (_) {}
+    }
+
+    function renderFullBuild(rec) {
+      if (!rec || !rec.items || rec.items.length === 0) return false;
+      if (rec.timestamp === lastFullBuildTs) return false;
+      lastFullBuildTs = rec.timestamp;
+
+      let html = '';
+      if (rec.strategy) {
+        html += `<div class="rec-strategy">${rec.strategy}</div>`;
+      }
+      for (let i = 0; i < rec.items.length; i++) {
+        const item = rec.items[i];
+        const phase = (item.phase || '').toLowerCase();
+        html += `<div class="build-item">`;
+        html += `<div class="build-item-header">`;
+        html += `<span class="build-item-name">${i + 1}. ${item.name}</span>`;
+        html += `<span class="build-item-cost">${item.cost}g</span>`;
+        html += `</div>`;
+        if (phase) {
+          html += `<span class="build-item-phase ${phase}">${phase} game</span>`;
+        }
+        html += `<div class="build-item-reason">${item.reason}</div>`;
+        html += `</div>`;
+      }
+      html += `<div class="rec-meta">${rec.hero} @ ${rec.gold_at_request}g — ${formatTime(rec.timestamp)}</div>`;
+      buildEl.innerHTML = html;
+      return true;
+    }
+
+    async function pollFullBuild() {
+      try {
+        const res = await fetch(`${API}/full-recommendation`);
+        if (res.ok) {
+          const rec = await res.json();
+          const rendered = renderFullBuild(rec);
+          if (rendered && fullBuildPending) {
+            fullBuildPending = false;
+            buildBtn.disabled = false;
+            buildBtn.textContent = 'Refresh Item Build';
+          }
+        }
+      } catch (_) {}
+      if (fullBuildPending) {
+        setTimeout(pollFullBuild, 1500);
+      }
+    }
+
+    function formatLogTime(ts) {
+      const d = new Date(ts * 1000);
+      return d.toLocaleTimeString([], { hour12: false });
+    }
+
+    async function pollLogs() {
+      try {
+        const res = await fetch(`${API}/logs?since=${lastLogTs}`);
+        if (!res.ok) return;
+        const entries = await res.json();
+        if (entries.length === 0) return;
+
+        const emptyMsg = logsEl.querySelector('.log-empty');
+        if (emptyMsg) emptyMsg.remove();
+
+        for (const entry of entries) {
+          const el = document.createElement('div');
+          el.className = `log-entry ${entry.level}`;
+          el.innerHTML = `<span class="log-time">${formatLogTime(entry.timestamp)}</span>`
+            + `<span class="log-src">[${entry.source}]</span>`
+            + `<span class="log-msg">${entry.message}</span>`;
+          logsEl.appendChild(el);
+        }
+
+        lastLogTs = Math.max(...entries.map(e => e.timestamp));
+        logsEl.scrollTop = logsEl.scrollHeight;
+      } catch (_) {}
+    }
+
+    setInterval(pollEvents, POLL_MS);
+    setInterval(pollState, 1000);
+    setInterval(pollRecommendation, 2000);
+    setInterval(pollLogs, 1000);
+    pollEvents();
+    pollState();
+    pollRecommendation();
+    pollLogs();
+  </script>
+</body>
+</html>

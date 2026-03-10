@@ -1,0 +1,4 @@
+dota2gsipy @ git+https://github.com/Daniel-EST/dota2gsipy.git
+flask
+google-genai
+python-dotenv

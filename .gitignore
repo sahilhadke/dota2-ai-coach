@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+gsi_data.json
+.DS_Store
+.env
+test_gemini.py
+.cursor/

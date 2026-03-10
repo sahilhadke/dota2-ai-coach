@@ -5,29 +5,29 @@ A real-time AI coaching assistant for Dota 2 that reads live game data via Game 
 ## Features
 
 ### Real-Time Game State Tracking
-- ✅ Receives live game data from Dota 2 via GSI (hero stats, items, minimap, buildings, draft, etc.)
-- ✅ State diffing engine detects meaningful changes between game ticks
-- ✅ Web dashboard displays live hero HP/mana, KDA, gold, GPM/XPM, and match clock
+✅ Receives live game data from Dota 2 via GSI (hero stats, items, minimap, buildings, draft, etc.)
+✅ State diffing engine detects meaningful changes between game ticks
+✅ Web dashboard displays live hero HP/mana, KDA, gold, GPM/XPM, and match clock
 
 ### Smart Notifications
-- ✅ **Economy thresholds** — alerts when gold crosses milestones (every 1000g)
-- ✅ **Combat alerts** — warns when HP drops below 20% and you have unused active items
-- ✅ **Gank detection** — tracks enemy hero positions on the minimap and alerts when enemies are closing in on your location, including TP/smoke ganks
-- ✅ **Game timings** — heads-up notifications for rune spawns, neutral creeps, siege waves, day/night cycles, Roshan, Tormentor, neutral item tiers, and more
+✅ **Economy thresholds** — alerts when gold crosses milestones (every 1000g)
+✅ **Combat alerts** — warns when HP drops below 20% and you have unused active items
+✅ **Gank detection** — tracks enemy hero positions on the minimap and alerts when enemies are closing in on your location, including TP/smoke ganks
+✅ **Game timings** — heads-up notifications for rune spawns, neutral creeps, siege waves, day/night cycles, Roshan, Tormentor, neutral item tiers, and more
 
 ### AI Item Recommendations (Gemini)
-- ✅ **Auto recommendations** — triggered when gold crosses thresholds, suggests 1-3 items to buy next
-- ✅ **Full item build** — on-demand button to get a prioritized 5-item build covering early/mid/late game
-- ✅ Considers your hero, role, current items, enemy lineup, lane matchup, and game time
-- ✅ Runs in a background thread so it never blocks game state processing
+✅ **Auto recommendations** — triggered when gold crosses thresholds, suggests 1-3 items to buy next
+✅ **Full item build** — on-demand button to get a prioritized 5-item build covering early/mid/late game
+✅ Considers your hero, role, current items, enemy lineup, lane matchup, and game time
+✅ Runs in a background thread so it never blocks game state processing
 
 ### Lane Setup
-- ✅ After the first minute of the game, a popup asks for your lane, position, ally, and lane enemies
-- ✅ This context is fed into the LLM prompts for more accurate recommendations
+✅ After the first minute of the game, a popup asks for your lane, position, ally, and lane enemies
+✅ This context is fed into the LLM prompts for more accurate recommendations
 
 ### Server Logs Panel
-- ✅ Live server-side logs visible on the dashboard
-- ✅ Shows LLM API call status (requesting → received → parsed), errors, and system events
+✅ Live server-side logs visible on the dashboard
+✅ Shows LLM API call status (requesting → received → parsed), errors, and system events
 
 ## Architecture
 
